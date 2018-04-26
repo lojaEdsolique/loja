@@ -3,16 +3,12 @@ namespace EDS\Model;
 use \EDS\DB\Sql;
 use \EDS\Model;
 use \EDS\Mailer;
-
 class User extends Model {
-
 	const SESSION = "User";
-	const FORGOT_SECRET = "Edsolique_Secret";
-
+	const FORGOT_SECRET = "HcodePhp7_Secret";
 	public static function getFromSession($inadmin = true)
 	{
 		$user = new User();
-		
 		if (User::checkLogin($inadmin)) {
 			$user->setData($_SESSION[User::SESSION]);
 		}
@@ -129,7 +125,6 @@ class User extends Model {
 		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE b.desemail = :desemail", array(
 			":desemail"=>$email
 		));
-
 		if (count($results) > 0)
 		{
 			$data = $results[0];
@@ -149,7 +144,7 @@ class User extends Model {
 			$mailer = new Mailer(
 				$email, 
 				$data['desperson'],
-				"Redefinição de senha de Edsolique", 
+				"Redefinição de senha de Edvaldo Solique", 
 				"forgot", 
 			array(
 				"name"=>$data['desperson'],
