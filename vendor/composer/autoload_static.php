@@ -16,7 +16,7 @@ class ComposerStaticInit1f758d0ba4ba24168691543f938ea2bf
     public static $prefixDirsPsr4 = array (
         'EDS\\' => 
         array (
-            0 => __DIR__ . '/..' . '/edsolique/php-classes/src',
+            0 => __DIR__ . '/..' . '/EDS/php-classes/src',
         ),
     );
 

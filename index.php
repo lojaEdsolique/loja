@@ -21,6 +21,7 @@ require_once("vendor/autoload.php");
 
 	});
 
+	//Get admin
 	$app->get('/admin', function() {
 	    
 		User::verifyLogin();
@@ -31,6 +32,7 @@ require_once("vendor/autoload.php");
 
 	});
 
+	//Get admin login
 	$app->get('/admin/login', function() {
 
 		$page = new PageAdmin([
@@ -41,6 +43,7 @@ require_once("vendor/autoload.php");
 		$page->setTpl("login");
 	});
 
+	//Post admin login
 	$app->post('/admin/login', function() {
 
 		User::login($_POST["login"], $_POST["password"]);
@@ -49,12 +52,14 @@ require_once("vendor/autoload.php");
 		exit;
 	});
 
+	//Get admin logout
 	$app->get('/admin/logout', function() {
 		User::logout();
 		header("Location: /admin/login");
 		exit;
 	});
 
+	//Get admin users
 	$app->get("/admin/users", function(){
 
 		User::verifyLogin();
@@ -65,6 +70,7 @@ require_once("vendor/autoload.php");
 		));
 	});
 
+	//Get admin users create
 	$app->get("/admin/users/create", function(){
 
 		User::verifyLogin();
@@ -72,6 +78,7 @@ require_once("vendor/autoload.php");
 		$page->setTpl("users-create");
 	});
 
+	//Get admin users :iduser delete
 	$app->get("/admin/users/:iduser/delete", function($iduser) {
 
 		User::verifyLogin();
@@ -83,28 +90,33 @@ require_once("vendor/autoload.php");
 
 	});
 
-	$app->get("/admin/users/:iduser", function($iduser){
-
-		User::verifyLogin();
-		$user = new User();
-		$user->get((int)$iduser);
-		$page = new PageAdmin();
-		$page->setTpl("users-update", array(
-			"user"=>$user->getValues()
-		));
+	//Get admin users :iduser
+	$app->get('/admin/users/:iduser', function($iduser){
+	    User::verifyLogin();
+	    $user = new User();
+	    $user->get((int)$iduser);
+	    $page = new PageAdmin();
+	    $page ->setTpl("users-update", array(
+	        "user"=>$user->getValues()
+	    ));
 	});
 
+	//Post admin users create
 	$app->post("/admin/users/create", function() {
 
 		User::verifyLogin();
 		$user = new User();
 		$_POST["inadmin"] = (isset($_POST["inadmin"]))?1:0;
+		$_POST['despassword'] = password_hash($_POST["despassword"], PASSWORD_DEFAULT, [
+		    "cost"=>12
+		]);
 		$user->setData($_POST);
 		$user->save();
 		header("Location: /admin/users");
 		exit;
 	});
 
+	//Post admin users :iduser
 	$app->post("/admin/users/:iduser", function($iduser) {
 
 		User::verifyLogin();
@@ -117,6 +129,7 @@ require_once("vendor/autoload.php");
 		exit;
 	});
 
+	//Get admin forgot
 	$app->get("/admin/forgot", function() {
 
 		$page = new PageAdmin([
@@ -127,6 +140,7 @@ require_once("vendor/autoload.php");
 		$page->setTpl("forgot");
 	});
 
+	//Post admin forgot
 	$app->post("/admin/forgot", function() {
 		
 		$user = User::getForgot($_POST["email"]);
@@ -135,6 +149,7 @@ require_once("vendor/autoload.php");
 		exit;
 	});
 
+	//Get admin forgot sent
 	$app->get("/admin/forgot/sent", function() {
 
 		$page = new PageAdmin([
@@ -145,6 +160,7 @@ require_once("vendor/autoload.php");
 		$page->setTpl("forgot-sent");
 	});
 
+	//Get admim forgot reset
 	$app->get("/admin/forgot/reset", function() {
 
 		$user = User::validForgotDecrypt($_GET["code"]);
@@ -160,6 +176,7 @@ require_once("vendor/autoload.php");
 		));
 	});
 
+	//Post admin/forgot/reset
 	$app->post("/admin/forgot/reset", function() {
 
 		$forgot = User::validForgotDecrypt($_POST["code"]);
@@ -184,6 +201,9 @@ require_once("vendor/autoload.php");
 		$page->setTpl("forgot-reset-success");
 	});
 
+	//===========ADMIN CATEGORY=============
+
+	//Get admin/categories
 	$app->get("/admin/categories", function() {
 
 		User::verifyLogin();
@@ -197,6 +217,7 @@ require_once("vendor/autoload.php");
 		]);
 	});
 
+	//Get admin/categories/create
 	$app->get("/admin/categories/create", function() {
 
 		User::verifyLogin();
@@ -206,6 +227,7 @@ require_once("vendor/autoload.php");
 		$page->setTpl("categories-create");
 	});
 
+	//Post admin/categories/create
 	$app->post("/admin/categories/create", function() {
 
 		User::verifyLogin();
@@ -220,6 +242,7 @@ require_once("vendor/autoload.php");
 		exit;
 	});
 
+	//Get admin/categories/:idcategoy/delete
 	$app->get("/admin/categories/:idcategory/delete", function($idcategory) {
 
 		User::verifyLogin();
@@ -235,6 +258,7 @@ require_once("vendor/autoload.php");
 
 	});
 
+	//Get admin/categories/:idcategory
 	$app->get("/admin/categories/:idcategory", function($idcategory) {
 
 		User::verifyLogin();
@@ -250,7 +274,7 @@ require_once("vendor/autoload.php");
 		]);
 
 	});
-
+	//Post admin/categories/:idcategory
 	$app->post("/admin/categories/:idcategory", function($idcategory) {
 
 		User::verifyLogin();
@@ -266,6 +290,17 @@ require_once("vendor/autoload.php");
 		header('Location: /admin/categories');
 		exit;
 
+	});
+
+	//Get /categories/:idcategory
+	$app->get("/categories/:idcategory", function($idcategory) {
+		$category = new category();
+		$category->get((int)$idcategory);
+		$page = new Page();
+		$page->setTpl("category", [
+			'category'=>$category->getValues(),
+			'products'=>[]
+		]);
 	});
 
 	$app->run();

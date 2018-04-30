@@ -1,8 +1,8 @@
 {
-    "name": "edsolique/ecommerce",
+    "name": "EDS/ecommerce",
     "authors": [
         {
-            "name": "edsoliqu Treinamentos",
+            "name": "Edsolique",
             "email": "edsolique@edsolique.com"
         }
     ],
@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "EDS\\": "vendor\\edsolique\\php-classes\\src"
+            "EDS\\": "vendor\\EDS\\php-classes\\src"
         }
     }
 }

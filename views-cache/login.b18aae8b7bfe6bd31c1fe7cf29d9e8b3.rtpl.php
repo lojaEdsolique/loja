@@ -27,11 +27,11 @@
 <body class="hold-transition login-page">
 <div class="login-box">
   <div class="login-logo">
-    <a href="/res/admin/index2.html"><b>Admin</b>EDSOLIQUE</a>
+    <a href="/res/admin/index2.html"><b>Admin</b>LTE</a>
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-    <p class="login-box-msg">Entre para iniciar sua sessão</p>
+    <p class="login-box-msg">Sign in to start your session</p>
 
     <form action="/admin/login" method="post">
       <div class="form-group has-feedback">
@@ -46,7 +46,7 @@
         <div class="col-xs-8">
           <div class="checkbox icheck">
             <label>
-              <input type="checkbox"> Lembrar-me
+              <input type="checkbox"> Remember me
             </label>
           </div>
         </div>

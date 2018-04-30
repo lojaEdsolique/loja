@@ -85,27 +85,27 @@ class Category extends Model {
     public function save()
 	{
 		$sql = new Sql();
-		$results = $sql->select("CALL sp_categories_save(:idcategory, :descategory)", array(
+		$results = $sql->select("CALL sp_categories_save(:idcategory, :descategory)", [
 			":idcategory"=>$this->getidcategory(),
 			":descategory"=>$this->getdescategory()
-		));
+		]);
 		$this->setData($results[0]);
 		Category::updateHTML();
 	}
     public function get($idcategory)
 	{
 		$sql = new Sql();
-		$results = $sql->select("SELECT * FROM tb_categories WHERE idcategory = :idcategory", array(
-			":idcategory"=>$idcategory
-		));
+		$results = $sql->select("SELECT * FROM tb_categories WHERE idcategory = :idcategory", [
+			':idcategory'=>$idcategory
+		]);
 		$this->setData($results[0]);
 	}
     public function delete()
 	{
 		$sql = new Sql();
-		$sql->query("DELETE FROM tb_categories WHERE idcategory = :idcategory", array(
+		$sql->query("DELETE FROM tb_categories WHERE idcategory = :idcategory", [
 			":idcategory"=>$this->getidcategory()
-		));
+		]);
 		Category::updateHTML();
 	}
 	public static function updateHTML()
@@ -114,12 +114,7 @@ class Category extends Model {
 		$html = '
 			<div class="footer-menu">
 				<h2 class="footer-wid-title">Categorias</h2>
-				<ul>
-					
-					
-					
-				
-		';
+				<ul>';
 		foreach ($categories as $cat) {
 			$html .= '<li><a href="/categories/'.$cat['idcategory'].'">'.$cat['descategory'].'</a></li>';
 		}

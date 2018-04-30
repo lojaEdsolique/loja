@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'EDS\\' => array($vendorDir . '/edsolique/php-classes/src'),
+    'EDS\\' => array($vendorDir . '/EDS/php-classes/src'),
 );
