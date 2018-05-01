@@ -3,12 +3,15 @@ namespace EDS\Model;
 use \EDS\DB\Sql;
 use \EDS\Model;
 use \EDS\Model\Product;
+
 class Category extends Model {
+
 	public static function listAll()
 	{
 		$sql = new Sql();
 		return $sql->select("SELECT * FROM tb_categories ORDER BY descategory");
 	}
+
 	public function getProductsPage($page = 1, $itemsPerPage = 10)
 	{
 		$start = ($page - 1) * $itemsPerPage;
@@ -34,6 +37,7 @@ class Category extends Model {
 			'pages'=>ceil($resultTotal[0]['nrtotal'] / $itemsPerPage)
 		];
 	}
+
 	public function getProducts($related = true)
 	{
 		$sql = new Sql();
@@ -82,6 +86,7 @@ class Category extends Model {
 			':idproduct'=>$product->getidproduct()
 		]);
 	}
+
     public function save()
 	{
 		$sql = new Sql();
@@ -92,6 +97,7 @@ class Category extends Model {
 		$this->setData($results[0]);
 		Category::updateHTML();
 	}
+
     public function get($idcategory)
 	{
 		$sql = new Sql();
@@ -100,6 +106,7 @@ class Category extends Model {
 		]);
 		$this->setData($results[0]);
 	}
+
     public function delete()
 	{
 		$sql = new Sql();
@@ -108,6 +115,7 @@ class Category extends Model {
 		]);
 		Category::updateHTML();
 	}
+
 	public static function updateHTML()
 	{
 		$categories = Category::listAll();
@@ -129,6 +137,7 @@ class Category extends Model {
 			DIRECTORY_SEPARATOR.
 			"categories-menu.html", $html); 
 	}
+	
 }
 
  ?>
