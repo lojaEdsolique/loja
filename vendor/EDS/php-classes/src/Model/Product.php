@@ -2,6 +2,7 @@
 
 //BANCO, PASTAS E ARQUIVOS
 namespace EDS\Model;
+
 use \EDS\DB\Sql;
 use \EDS\Model;
 use \EDS\Mailer;
@@ -14,6 +15,17 @@ class Product extends Model {
 	{
 		$sql = new Sql();
 		return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
+	}
+
+	//public function checkList()
+	public function checkList($list)
+	{
+		foreach ($list as &$row) {
+			$p = new Product();
+			$p->setData($row);
+			$row = $p->getValues();
+		}
+		return $list;
 	}
 
 	//public function save()
