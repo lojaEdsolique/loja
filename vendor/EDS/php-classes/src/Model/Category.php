@@ -130,4 +130,5 @@ class Category extends Model {
 			"categories-menu.html", $html); 
 	}
 }
+
  ?>

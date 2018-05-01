@@ -104,7 +104,7 @@ class User extends Model {
 		$this->setData($results[0]);
 	}
 
-	//function ger ($iduser)
+	//function get ($iduser)
 	public function get($iduser)
 	{
 	 
@@ -159,7 +159,7 @@ class User extends Model {
 	     ));
 	     if (count($results) === 0)
 	     {
-	         throw new \Exception("Não foi possível recuperar a senha.");
+	         throw new \Exception("Não foi possível recuperar a senha!");
 	     }
 	     else
 	     {
@@ -170,7 +170,7 @@ class User extends Model {
 	         ));
 	         if (count($results2) === 0)
 	         {
-	             throw new \Exception("Não foi possível recuperar a senha.");
+	             throw new \Exception("Não foi possível recuperar a senha!");
 	         }
 	         else
 	         {
@@ -183,7 +183,7 @@ class User extends Model {
 	             } else {
 	                 $link = "http://www.edsoliquecommerce.com.br/forgot/reset?code=$result";
 	             } 
-	             $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Hcode Store", "forgot", array(
+	             $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha de Loja Edsolique", "forgot", array(
 	                 "name"=>$data['desperson'],
 	                 "link"=>$link
 	             )); 
@@ -217,7 +217,7 @@ class User extends Model {
 	     ));
 	     if (count($results) === 0)
 	     {
-	         throw new \Exception("Não foi possível recuperar a senha.");
+	         throw new \Exception("Não foi possível recuperar a senha!");
 	     }
 	     else
 	     {
@@ -233,7 +233,8 @@ class User extends Model {
 		));
 	}
 
-	//function getPasswordHash
+
+	// //function getPasswordHash
 	// public static function getPasswordHash($password)
 	// {
 	// 	return password_hash($password, PASSWORD_DEFAULT, [
