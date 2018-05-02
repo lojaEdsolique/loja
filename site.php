@@ -12,10 +12,10 @@ use \EDS\Model\category;
 		]);
 	});
 
-	//Get /categories/:idcategory
+	//Get /categories/:idcategory - paginação
 	$app->get("/categories/:idcategory", function($idcategory) {
 		$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
-		$category = new category();
+		$category = new Category();
 		$category->get((int)$idcategory);
 		$pagination = $category->getProductsPage($page);
 		$pages = [];
@@ -35,5 +35,16 @@ use \EDS\Model\category;
 		]);
 	});
 	
+	//Get /products/:desurl - detalhe do produto
+	$app->get("/products/:desurl", function($desurl) {
+		$product = new Product();
+		$product->getFromURL($desurl);
+		$page = new Page();
+		$page->setTpl("product-detail", [
+			'product'=>$product->getValues(),
+			'categories'=>$product->getCategories()
+		]);
+	});
+
 
  ?>
