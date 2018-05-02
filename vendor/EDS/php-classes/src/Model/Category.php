@@ -12,30 +12,32 @@ class Category extends Model {
 		return $sql->select("SELECT * FROM tb_categories ORDER BY descategory");
 	}
 
-	public function getProductsPage($page = 1, $itemsPerPage = 10)
+	public function getProductsPage($page = 1, $itemsPerPage = 8)
 	{
+
 		$start = ($page - 1) * $itemsPerPage;
-		$length = $itemsPerPage;
+
 		$sql = new Sql();
-		$rows = $sql->select("
+
+		$results = $sql->select("
 			SELECT SQL_CALC_FOUND_ROWS *
-			FROM tb_products a 
-			LEFT JOIN tb_categoriesproducts b USING(idproduct)
-			LEFT JOIN tb_categories c USING(idcategory)
+			FROM tb_products a
+			INNER JOIN tb_productscategories b ON a.idproduct = b.idproduct
+			INNER JOIN tb_categories c ON c.idcategory = b.idcategory
 			WHERE c.idcategory = :idcategory
-			ORDER BY descategory
-			LIMIT $start, $length
+			LIMIT $start, $itemsPerPage;
 		", [
 			':idcategory'=>$this->getidcategory()
 		]);
-		$resultTotal = $sql->select("
-			SELECT FOUND_ROWS() AS nrtotal
-		");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
 		return [
-			'data'=>Product::formatProducts($rows),
-			'total'=>(int)$resultTotal[0]['nrtotal'],
-			'pages'=>ceil($resultTotal[0]['nrtotal'] / $itemsPerPage)
+			'data'=>Product::checkList($results),
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
 		];
+
 	}
 
 	public function getProducts($related = true)
