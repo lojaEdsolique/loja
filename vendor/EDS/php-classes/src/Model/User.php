@@ -3,18 +3,43 @@ namespace EDS\Model;
 use \EDS\DB\Sql;
 use \EDS\Model;
 use \EDS\Mailer;
+
 class User extends Model {
+
 	const SESSION = "User";
 	const SECRET = "Edsolique_Secret";
 
 	//function getFromSession
-	public static function getFromSession($inadmin = true)
+	public static function getFromSession()
 	{
 		$user = new User();
-		if (User::checkLogin($inadmin)) {
+		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {			
 			$user->setData($_SESSION[User::SESSION]);
+			return $user;
 		}
 		return $user;
+	}
+
+	public static function checkLogin($inadmin = true)
+	{
+		if (
+			!isset($_SESSION[User::SESSION])
+			||
+			!$_SESSION[User::SESSION]
+			||
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
+		) {
+			//Não está logado
+			return false;
+		} else {
+			if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
+				return true;
+			} else if ($inadmin === false) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 	
 	//function login
@@ -40,42 +65,16 @@ class User extends Model {
 		}
 	}
 
-	//function checklogin
-	public static function checkLogin($inadmin = true)
-	{
-		if (
-			!isset($_SESSION[User::SESSION])
-			||
-			!$_SESSION[User::SESSION]
-			||
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0
-		) {
-			return false;
-		} else {
-			if ($inadmin === true && (bool)$_SESSION[User::SESSION]["inadmin"] === true) {
-				return true;
-			} else if ($inadmin === false) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-
 	//function verifyLogin
 	public static function verifyLogin($inadmin = true)
 	{
-		if (!User::checkLogin($inadmin)) {
+		if (User::checkLogin($inadmin)) {
 			
-			if ($inadmin) {
-				header("Location: /admin/login");
-			} else {
-				header("Location: /login");
-			}
+			header("Location: /admin/login");
 			exit;
 		}
 	}
-
+	
 	//function logout
 	public static function logout()
 	{

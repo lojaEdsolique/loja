@@ -10,14 +10,14 @@ use \EDS\Mailer;
 //Class Product
 class Product extends Model {
 
-	//public static function listAll()
+	//listAll()
 	public static function listAll()
 	{
 		$sql = new Sql();
 		return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
 	}
 
-	//public function checkList()
+	//checkList dos produtos
 	public function checkList($list)
 	{
 		foreach ($list as &$row) {
