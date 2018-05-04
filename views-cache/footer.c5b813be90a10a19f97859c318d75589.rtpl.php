@@ -27,7 +27,7 @@
                 
                 <div class="col-md-3 col-sm-6">
                     <div class="footer-menu">
-                        <!-- <h2 class="footer-wid-title">Categorias</h2> -->
+                        <h2 class="footer-wid-title">Categorias</h2>
                         <ul>
                             <?php require $this->checkTemplate("categories-menu");?>                           
                         </ul>                        
@@ -55,7 +55,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="copyright">
-                        <p>&copy; 2017 Hcode Treinamentos. <a href="http://www.hcode.com.br" target="_blank">hcode.com.br</a></p>
+                        <p>&copy; 2017 Hcode Treinamentos. <a href="http://www.edsolique.com" target="_blank">hcode.com.br</a></p>
                     </div>
                 </div>
                 
