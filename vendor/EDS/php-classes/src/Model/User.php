@@ -1,45 +1,22 @@
 <?php 
 namespace EDS\Model;
+
 use \EDS\DB\Sql;
 use \EDS\Model;
 use \EDS\Mailer;
 
 class User extends Model {
-
 	const SESSION = "User";
 	const SECRET = "Edsolique_Secret";
 
 	//function getFromSession
-	public static function getFromSession()
+	public static function getFromSession($inadmin = true)
 	{
 		$user = new User();
-		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {			
+		if (User::checkLogin($inadmin)) {
 			$user->setData($_SESSION[User::SESSION]);
-			return $user;
 		}
 		return $user;
-	}
-
-	public static function checkLogin($inadmin = true)
-	{
-		if (
-			!isset($_SESSION[User::SESSION])
-			||
-			!$_SESSION[User::SESSION]
-			||
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0
-		) {
-			//Não está logado
-			return false;
-		} else {
-			if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
-				return true;
-			} else if ($inadmin === false) {
-				return true;
-			} else {
-				return false;
-			}
-		}
 	}
 	
 	//function login
@@ -65,16 +42,42 @@ class User extends Model {
 		}
 	}
 
+	//function checklogin
+	public static function checkLogin($inadmin = true)
+	{
+		if (
+			!isset($_SESSION[User::SESSION])
+			||
+			!$_SESSION[User::SESSION]
+			||
+			!(int)$_SESSION[User::SESSION]["iduser"] > 0
+		) {
+			return false;
+		} else {
+			if ($inadmin === true && (bool)$_SESSION[User::SESSION]["inadmin"] === true) {
+				return true;
+			} else if ($inadmin === false) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
 	//function verifyLogin
 	public static function verifyLogin($inadmin = true)
 	{
-		if (User::checkLogin($inadmin)) {
+		if (!User::checkLogin($inadmin)) {
 			
-			header("Location: /admin/login");
+			if ($inadmin) {
+				header("Location: /admin/login");
+			} else {
+				header("Location: /login");
+			}
 			exit;
 		}
 	}
-	
+
 	//function logout
 	public static function logout()
 	{
@@ -103,7 +106,7 @@ class User extends Model {
 		$this->setData($results[0]);
 	}
 
-	//function get ($iduser)
+	//function ger ($iduser)
 	public function get($iduser)
 	{
 	 
@@ -158,7 +161,7 @@ class User extends Model {
 	     ));
 	     if (count($results) === 0)
 	     {
-	         throw new \Exception("Não foi possível recuperar a senha!");
+	         throw new \Exception("Não foi possível recuperar a senha.");
 	     }
 	     else
 	     {
@@ -169,7 +172,7 @@ class User extends Model {
 	         ));
 	         if (count($results2) === 0)
 	         {
-	             throw new \Exception("Não foi possível recuperar a senha!");
+	             throw new \Exception("Não foi possível recuperar a senha.");
 	         }
 	         else
 	         {
@@ -182,7 +185,7 @@ class User extends Model {
 	             } else {
 	                 $link = "http://www.edsoliquecommerce.com.br/forgot/reset?code=$result";
 	             } 
-	             $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha de Loja Edsolique", "forgot", array(
+	             $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Hcode Store", "forgot", array(
 	                 "name"=>$data['desperson'],
 	                 "link"=>$link
 	             )); 
@@ -216,7 +219,7 @@ class User extends Model {
 	     ));
 	     if (count($results) === 0)
 	     {
-	         throw new \Exception("Não foi possível recuperar a senha!");
+	         throw new \Exception("Não foi possível recuperar a senha.");
 	     }
 	     else
 	     {
@@ -232,8 +235,7 @@ class User extends Model {
 		));
 	}
 
-
-	// //function getPasswordHash
+	// function getPasswordHash
 	// public static function getPasswordHash($password)
 	// {
 	// 	return password_hash($password, PASSWORD_DEFAULT, [
@@ -279,5 +281,58 @@ class User extends Model {
 			':iduser'=>$this->getiduser()
 		]);
 	}
+
+	public static function getPage($page = 1, $itemsPerPage = 8)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a 
+			INNER JOIN tb_persons b USING(idperson) 
+			ORDER BY b.desperson
+			LIMIT $start, $itemsPerPage;
+		");
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	}
+
+	public static function getPageSearch($search, $page = 1, $itemsPerPage = 8)
+	{
+
+		$start = ($page - 1) * $itemsPerPage;
+
+		$sql = new Sql();
+
+		$results = $sql->select("
+			SELECT SQL_CALC_FOUND_ROWS *
+			FROM tb_users a 
+			INNER JOIN tb_persons b USING(idperson)
+			WHERE b.desperson LIKE :search OR b.desemail = :search OR a.deslogin LIKE :search
+			ORDER BY b.desperson
+			LIMIT $start, $itemsPerPage;
+		", [
+			':search'=>'%'.$search.'%'
+		]);
+
+		$resultTotal = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+		return [
+			'data'=>$results,
+			'total'=>(int)$resultTotal[0]["nrtotal"],
+			'pages'=>ceil($resultTotal[0]["nrtotal"] / $itemsPerPage)
+		];
+
+	} 
 }
  ?>
