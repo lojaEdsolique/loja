@@ -56,7 +56,7 @@
                                             <a href="/products/<?php echo htmlspecialchars( $value1["desurl"], ENT_COMPAT, 'UTF-8', FALSE ); ?>"><?php echo htmlspecialchars( $value1["desproduct"], ENT_COMPAT, 'UTF-8', FALSE ); ?></a> 
                                         </td>
 
-                                        <td class="product-price">vlprice
+                                        <td class="product-price">
                                             <span class="amount">R$<?php echo formatPrice($value1["vlprice"]); ?></span> 
                                         </td>
 
