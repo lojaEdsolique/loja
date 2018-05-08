@@ -7,7 +7,7 @@ use \EDS\Model\Cart;
 use \EDS\Model\Address;
 use \EDS\Model\User;
 	
-	//Rota Lista os produtos
+	//Rota - Lista os produtos
 	$app->get('/', function() {
 	    $products = Product::listAll();
 		$page = new Page();
@@ -16,7 +16,7 @@ use \EDS\Model\User;
 		]);
 	});
 
-	//Rota Paginação
+	//Rota - Paginação
 	$app->get("/categories/:idcategory", function($idcategory) {
 		$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 		$category = new Category();
@@ -38,7 +38,7 @@ use \EDS\Model\User;
 		]);
 	});
 
-	//Rota Detalhe do produto
+	//Rota - Detalhe do produto
 	$app->get("/products/:desurl", function($desurl) {
 		$product = new Product();
 		$product->getFromURL($desurl);
@@ -49,7 +49,7 @@ use \EDS\Model\User;
 		]);
 	});
 
-	//Rota Carrinho
+	//Rota - Carrinho
 	$app->get('/cart', function() {
 		$cart = Cart::getFromSession();
 		$page = new Page();
@@ -60,7 +60,7 @@ use \EDS\Model\User;
 		]);
 	});
 
-	//Rota adicina produto carrinho
+	//Rota - adicina produto carrinho
 	$app->get("/cart/:idproduct/add", function($idproduct) {
 		$product = new Product();
 		$product->get((int)$idproduct);
@@ -74,7 +74,7 @@ use \EDS\Model\User;
 		exit;
 	});
 
-	//Rota Remove um produto do carrinho
+	//Rota - Remove um produto do carrinho
 	$app->get("/cart/:idproduct/minus", function($idproduct) {
 		$product = new Product();
 		$product->get((int)$idproduct);
@@ -84,7 +84,7 @@ use \EDS\Model\User;
 		exit;
 	});
 
-	//Rota Remove todos os produtos do carrinho
+	//Rota - Remove todos os produtos do carrinho
 	$app->get("/cart/:idproduct/remove", function($idproduct) {
 		$product = new Product();
 		$product->get((int)$idproduct);
@@ -113,13 +113,17 @@ use \EDS\Model\User;
 		]);
 	});
 
+	//Rota - erro no login
 	$app->get("/login", function() {
 		$page = new Page();
 		$page->setTpl("login", [
-			'error'=>User::getError()
+			'error'         =>User::getError(),
+			'errorRegister' =>User::getErrorRegister(),
+			'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
 		]);
 	});
 
+	//Rota - Login no site
 	$app->post("/login", function() {
 		try {
 			User::login($_POST['login'], $_POST['password']);
@@ -130,10 +134,54 @@ use \EDS\Model\User;
 		exit;
 	});
 
+	//Rota - 
 	$app->get("/logout", function() {
 		User::logout();
 		header("Location: /login");
 		exit;
 	});
 
+	//Rota - Registro de novo usuario no site
+	$app->post("/register", function() {
+
+		$_SESSION['registerValues'] = $_POST;
+
+		if (!isset($_POST['name']) || $_POST['name'] == '') {
+			User::setErrorRegister("Preencha o seu nome.");
+			header("Location: /login");
+			exit;
+		}
+
+		if (!isset($_POST['email']) || $_POST['email'] == '') {
+			User::setErrorRegister("Preencha o seu e-mail.");
+			header("Location: /login");
+			exit;
+		}
+		if (!isset($_POST['password']) || $_POST['password'] == '') {
+			User::setErrorRegister("Preencha a senha.");
+			header("Location: /login");
+			exit;
+		}
+
+		if (User::checkLoginExist($_POST['email']) === true) {
+			User::setErrorRegister("Este endereço de e-mail já está sendo usado por outro usuáro.");
+			header("Location: /login");
+			exit;
+		}
+
+
+		$user = new User();
+		$user->setData([
+			'inadmin'    =>0,
+			'deslogin'   =>$_POST['email'],
+			'desperson'  =>$_POST['name'],
+			'desemail'   =>$_POST['email'],
+			'despassword'=>$_POST['password'],
+			'nrphone'    =>$_POST['phone']
+		]);
+		$user->save();
+		User::login($_POST['email'], $_POST['password']);
+		header('Location: /checkout');
+		exit;
+	});
  ?>
