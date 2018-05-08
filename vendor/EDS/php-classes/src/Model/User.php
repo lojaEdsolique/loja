@@ -194,7 +194,7 @@ class User extends Model {
 	             } else {
 	                 $link = "http://www.edsoliquecommerce.com.br/forgot/reset?code=$result";
 	             } 
-	             $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Hcode Store", "forgot", array(
+	             $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir senha da Loja EdSolique", "forgot", array(
 	                 "name"=>$data['desperson'],
 	                 "link"=>$link
 	             )); 
