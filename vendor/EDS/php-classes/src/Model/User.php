@@ -11,6 +11,7 @@ class User extends Model {
 	const SECRET = "Edsolique_Secret";
 	const ERROR = "UserError";
 	const ERROR_REGISTER = "UserErrorRegister";
+	const SUCCESS= "UserSuccess";
 
 	//function getFromSession
 	public static function getFromSession($inadmin = true)
@@ -276,6 +277,32 @@ class User extends Model {
 	{
 
 		$_SESSION[User::ERROR] = NULL;
+
+	}
+
+	//Erros profile
+	public static function setSuccess($msg)
+	{
+
+		$_SESSION[User::SUCCESS] = $msg;
+
+	}
+
+	public static function getSuccess()
+	{
+
+		$msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]) ? $_SESSION[User::SUCCESS] : '';
+
+		User::clearError();
+
+		return $msg;
+
+	}
+
+	public static function clearSuccess()
+	{
+
+		$_SESSION[User::SUCCESS] = NULL;
 
 	}
 
