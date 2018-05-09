@@ -7,7 +7,7 @@ use Rain\Tpl;
 class Mailer {
 	
 	const USERNAME = "lojaedsolique@gmail.com";
-	const PASSWORD = "68aljo23";
+	const PASSWORD = "";
 	const NAME_FROM = "Loja Edsolique";
 
 	private $mail;
@@ -35,13 +35,6 @@ class Mailer {
 
 		//Tell PHPMailer to use SMTP
 		$this->mail->isSMTP();
-		$this->mail->SMTPOptions = array(
-	    	'ssl' => array(
-	        'verify_peer' => false,
-	        'verify_peer_name' => false,
-	        'allow_self_signed' => true
-	    	)
-		);
 
 		//Enable SMTP debugging
 		// 0 = off (for production use)
@@ -96,7 +89,6 @@ class Mailer {
 		//$mail->addAttachment('images/phpmailer_mini.png');
 
 	}
-
 
 	public function send()
 	{
