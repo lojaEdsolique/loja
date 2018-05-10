@@ -12,7 +12,7 @@ use \EDS\Model\User;
 	    $products = Product::listAll();
 		$page = new Page();
 		$page->setTpl("index", [
-			'products'=>Product::checkList($products)
+			'products' =>Product::checkList($products)
 		]);
 	});
 
@@ -26,15 +26,15 @@ use \EDS\Model\User;
 
 		for ($i=1; $i <= $pagination['pages']; $i++) { 
 			array_push($pages, [
-				'link'=>'/categories/'.$category->getidcategory().'?page='.$i,
-				'page'=>$i
+				'link' =>'/categories/'.$category->getidcategory().'?page='.$i,
+				'page' =>$i
 			]);
 		}
 		$page = new Page();
 		$page->setTpl("category", [
-			'category'=>$category->getValues(),
-			'products'=>$pagination["data"],
-			'pages'=>$pages
+			'category' =>$category->getValues(),
+			'products' =>$pagination["data"],
+			'pages'    =>$pages
 		]);
 	});
 
@@ -44,8 +44,8 @@ use \EDS\Model\User;
 		$product->getFromURL($desurl);
 		$page = new Page();
 		$page->setTpl("product-detail", [
-			'product'=>$product->getValues(),
-			'categories'=>$product->getCategories()
+			'product'    =>$product->getValues(),
+			'categories' =>$product->getCategories()
 		]);
 	});
 
@@ -54,9 +54,9 @@ use \EDS\Model\User;
 		$cart = Cart::getFromSession();
 		$page = new Page();
 		$page->setTpl("cart", [
-			'cart'=>$cart->getValues(),
-			'products'=>$cart->getProducts(),
-			'error'=>Cart::getMsgError()
+			'cart'     =>$cart->getValues(),
+			'products' =>$cart->getProducts(),
+			'error'    =>Cart::getMsgError()
 		]);
 	});
 
@@ -104,22 +104,93 @@ use \EDS\Model\User;
 
 	$app->get("/checkout", function() {
 		User::verifyLogin(false);
-		$cart = Cart::getFromSession();
 		$address = new Address();
+		$cart = Cart::getFromSession();
+
+		if (isset($_GET['zipcode'])) {
+			$_GET['zipcode'] = $cart->getdeszipcode();
+		}
+
+		if (isset($_GET['zipcode'])) {
+			$address->loadFromCEP($_GET['zipcode']);
+			$cart->setdeszipcode($_GET['zipcode']);
+			$cart->save();
+			$cart->getCalculateTotal();
+		}
+
+		if (!$address->getdesaddress()) $address->setdesaddress('');
+		if (!$address->getdescomplement()) $address->setdescomplement('');
+		if (!$address->getdesdistrict()) $address->setdesdistrict('');
+		if (!$address->getdescity()) $address->setdescity('');
+		if (!$address->getdesstate()) $address->setdesstate('');
+		if (!$address->getdescountry()) $address->setdescountry('');
+		if (!$address->getdeszipcode()) $address->setdeszipcode('');
+
 		$page = new Page();
 		$page->setTpl("checkout", [
-			'cart'=>$cart->getValues(),
-			'address'=>$address->getValues()
+			'cart'     =>$cart->getValues(),
+			'address'  =>$address->getValues(),
+			'products' =>$cart->getProducts(),
+			'error'    =>Address::getMsgError()
 		]);
+	});
+
+	$app->post("/checkout", function() {
+		User::verifyLogin(false);
+
+		if (!isset($_POST['zipcode']) || $_POST['zipcode'] === '') {
+			Address::setMsgError("Informe o CEP.");
+			header('Location: /checkout');
+			exit;
+		}
+
+		if (!isset($_POST['desaddress']) || $_POST['desaddress'] === '') {
+			Address::setMsgError("Informe o endereço.");
+			header('Location: /checkout');
+			exit;
+		}
+
+		if (!isset($_POST['desdistrict']) || $_POST['desdistrict'] === '') {
+			Address::setMsgError("Informe o bairro.");
+			header('Location: /checkout');
+			exit;
+		}
+
+		if (!isset($_POST['descity']) || $_POST['descity'] === '') {
+			Address::setMsgError("Informe a cidade/localidade.");
+			header('Location: /checkout');
+			exit;
+		}
+
+		if (!isset($_POST['desstate']) || $_POST['desstate'] === '') {
+			Address::setMsgError("Informe o estado.");
+			header('Location: /checkout');
+			exit;
+		}
+
+		if (!isset($_POST['descountry']) || $_POST['descountry'] === '') {
+			Address::setMsgError("Informe o país.");
+			header('Location: /checkout');
+			exit;
+		}
+
+		$user = User::getFromSession();
+		$address = new Address();
+		$_POST['deszipcode'] = $_POST['zipcode'];
+		$_POST['idperson'] = $user->getidperson();
+		$address->setData($_POST);
+		$address->save();
+		header("Location: /order");
+		exit;
 	});
 
 	//Rota - erro no login
 	$app->get("/login", function() {
 		$page = new Page();
 		$page->setTpl("login", [
-			'error'         =>User::getError(),
-			'errorRegister' =>User::getErrorRegister(),
-			'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
+			'error'          =>User::getError(),
+			'errorRegister'  =>User::getErrorRegister(),
+			'registerValues' =>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
 		]);
 	});
 
@@ -210,8 +281,8 @@ use \EDS\Model\User;
 		$user = User::validForgotDecrypt($_GET["code"]);
 		$page = new Page();
 		$page->setTpl("forgot-reset", array(
-			"name"=>$user["desperson"],
-			"code"=>$_GET["code"]
+			"name" =>$user["desperson"],
+			"code" =>$_GET["code"]
 		));
 	});
 
@@ -233,9 +304,9 @@ use \EDS\Model\User;
 		$user = User::getFromSession();
 		$page = new Page();
 		$page->setTpl("profile", [
-			'user'=>$user->getValues(),
-			'profileMsg'=>User::getSuccess(),
-			'profileError'=>User::getError()
+			'user'         =>$user->getValues(),
+			'profileMsg'   =>User::getSuccess(),
+			'profileError' =>User::getError()
 		]);
 
 	});

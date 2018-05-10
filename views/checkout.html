@@ -76,7 +76,7 @@
                                                     {loop="$products"}
 													<tr class="cart_item">
 														<td class="product-name">
-															{$value.desproduct} <strong class="product-quantity">× 1</strong> 
+															{$value.desproduct} <strong class="product-quantity">× {$value.nrqtd}</strong> 
 														</td>
 														<td class="product-total">
 															<span class="amount">R${function="formatPrice($value.vltotal)"}</span>
