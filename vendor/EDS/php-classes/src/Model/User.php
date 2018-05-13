@@ -115,7 +115,7 @@ class User extends Model {
 		$this->setData($results[0]);
 	}
 
-	//function ger ($iduser)
+	//function get ($iduser)
 	public function get($iduser)
 	{
 	 

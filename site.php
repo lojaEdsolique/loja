@@ -6,6 +6,8 @@ use \EDS\Model\Category;
 use \EDS\Model\Cart;
 use \EDS\Model\Address;
 use \EDS\Model\User;
+use \EDS\Model\Order;
+use \EDS\Model\OrderStatus;
 	
 	//Rota - Lista os produtos
 	$app->get('/', function() {
@@ -180,7 +182,20 @@ use \EDS\Model\User;
 		$_POST['idperson'] = $user->getidperson();
 		$address->setData($_POST);
 		$address->save();
-		header("Location: /order");
+		$cart = Cart::getFromSession();
+		$totals = $cart = getCalculateTotal();
+		$order = new Order();
+		$order->setData([
+			'idcart'=>$cart->getidcart(),
+			'idaddress'=>$address->getidaddress(),
+			'iduser'=>$user->getiduser(),
+			'idstatus'=>OrderStatus::EM_ABERTO,
+			'vltotal'=>$totals['vlprice'] + $cart->getvlfreight()
+		]);
+
+		$order->save();
+
+		header("Location: /order/".$order->getidorder());
 		exit;
 	});
 
@@ -343,6 +358,86 @@ use \EDS\Model\User;
 		User::setSuccess("Dados alterados com sucesso!");
 		header('Location: /profile');
 		exit;
+	});
+
+	$app->get("/order/:idorder", function($idorder) {
+		User::verifyLogin(false);
+		$order = new Order();
+		$order->get((int)$idorder);
+		$page = new Page();
+		$page->stTpl("payment", [
+			'order'=>$order->getValues()
+		]);
+	});
+
+	$app->get("/boleto/:idorder", function($idorder) {
+
+		User::verifyLogin();
+		$order = new Order();
+		$order->get((int)$idorder);
+
+		// DADOS DO BOLETO PARA O SEU CLIENTE
+		$dias_de_prazo_para_pagamento = 5;
+		$taxa_boleto = 2.95;
+		$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006";
+		$valor_cobrado = "2950,00"; // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
+		$valor_cobrado = str_replace(",", ".",$valor_cobrado);
+		$valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
+
+		$dadosboleto["nosso_numero"] = $order->getidorder();  // Nosso numero - REGRA: Máximo de 8 caracteres!
+		$dadosboleto["numero_documento"] = $order->getidorder();	// Num do pedido ou nosso numero
+		$dadosboleto["data_vencimento"] = $data_venc; // Data de Vencimento do Boleto - REGRA: Formato DD/MM/AAAA
+		$dadosboleto["data_documento"] = date("d/m/Y"); // Data de emissão do Boleto
+		$dadosboleto["data_processamento"] = date("d/m/Y"); // Data de processamento do boleto (opcional)
+		$dadosboleto["valor_boleto"] = $valor_boleto; 	// Valor do Boleto - REGRA: Com vírgula e sempre com duas casas depois da virgula
+
+		// DADOS DO SEU CLIENTE
+		$dadosboleto["sacado"] = $order->getdesperson();
+		$dadosboleto["endereco1"] = $order->getdesaddress() . " " . $order->getdesdistrict();
+		$dadosboleto["endereco2"] = $order->getdescity() . " - " .$order->getdesstate() . " - " . $order->getdescountry() . " - CEP: " . $order->getdeszipcode();
+
+		// INFORMACOES PARA O CLIENTE
+		$dadosboleto["demonstrativo1"] = "Pagamento de Compra na Loja Nonononono";
+		$dadosboleto["demonstrativo2"] = "Mensalidade referente a nonon nonooon nononon<br>Taxa bancária - R$ ".number_format($taxa_boleto, 2, ',', '');
+		$dadosboleto["demonstrativo3"] = "BoletoPhp - http://www.boletophp.com.br";
+		$dadosboleto["instrucoes1"] = "- Sr. Caixa, cobrar multa de 2% após o vencimento";
+		$dadosboleto["instrucoes2"] = "- Receber até 10 dias após o vencimento";
+		$dadosboleto["instrucoes3"] = "- Em caso de dúvidas entre em contato conosco: lojaedsolique@gmil.com";
+		$dadosboleto["instrucoes4"] = "&nbsp; Emitido pelo sistema Projeto Loja EdSolique E-commerce - www.lojaedsolique.com";
+
+		// DADOS OPCIONAIS DE ACORDO COM O BANCO OU CLIENTE
+		$dadosboleto["quantidade"] = "001";
+		$dadosboleto["valor_unitario"] = $valor_boleto;
+		$dadosboleto["aceite"] = "";
+		$dadosboleto["especie"] = "R$";
+		$dadosboleto["especie_doc"] = "DS";
+
+		// ---------------------- DADOS FIXOS DE CONFIGURAÇÃO DO SEU BOLETO --------------- //
+
+		// DADOS DA SUA CONTA - BRADESCO
+		$dadosboleto["agencia"] = "1281"; // Num da agencia, sem digito
+		$dadosboleto["agencia_dv"] = "5"; // Digito do Nm da agencia
+		$dadosboleto["conta"] = "0504758";	// Num da conta, sem digito
+		$dadosboleto["conta_dv"] = "7"; 	// Digito do Num da conta
+
+		// DADOS PERSONALIZADOS - Bradesco
+		$dadosboleto["conta_cedente"] = "0102003"; // ContaCedente do Cliente, sem digito (Somente Números)
+		$dadosboleto["conta_cedente_dv"] = "4"; // Digito da ContaCedente do Cliente
+		$dadosboleto["carteira"] = "06";  // Código da Carteira: pode ser 06 ou 03
+
+		// SEUS DADOS
+		$dadosboleto["identificacao"] = "loja EdSolique";
+		$dadosboleto["cpf_cnpj"] = "113.457.188.70";
+		$dadosboleto["endereco"] = "Rua Pearci Pael Castro, 287 - Almesinda Costa Souza, 79750-000";
+		$dadosboleto["cidade_uf"] = "Nova Andradina - MS";
+		$dadosboleto["cedente"] = "EDSOLIQUE LTDA - ME";
+
+		// NÃO ALTERAR!
+		$path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR . "boletophp" . DIRECTORY_SEPARATOR . "include" . DIRECTORY_SEPARATOR;
+
+		require_once($path . "funcoes_bradesco.php");
+		require_once($path . "layout_bradesco.php");
+	
 	});
 
  ?>
