@@ -1,6 +1,8 @@
 <?php
 
-use \EDS\Model\user;
+use \EDS\Model\User;
+use \EDS\Model\Cart;
+
 	//function formatPrice()
 	function formatPrice($vlprice)
 	{
@@ -9,7 +11,7 @@ use \EDS\Model\user;
 		return number_format($vlprice, 2, ",", ".");
 	}
 
-	function checklogin($inadmin = true) 
+	function checkLogin($inadmin = true) 
 	{
 		return User::checkLogin($inadmin);
 	}
@@ -18,6 +20,20 @@ use \EDS\Model\user;
 	{
 		$user = User::getFromSession();
 		return $user->getdesperson();
+	}
+
+	function getCartNrQtd()
+	{
+		$cart = Cart::getFromSession();
+		$totals = $cart->getProductsTotals();
+		return ($totals['nrqtd']);
+	}
+
+	function getCartVlTotal()
+	{
+		$cart = Cart::getFromSession();
+		$totals = $cart->getProductsTotals();
+		return formatPrice($totals['vlprice']);
 	}
 
  ?>
