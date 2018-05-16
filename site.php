@@ -109,7 +109,7 @@ use \EDS\Model\OrderStatus;
 		$address = new Address();
 		$cart = Cart::getFromSession();
 
-		if (isset($_GET['zipcode'])) {
+		if (!isset($_GET['zipcode'])) {
 			$_GET['zipcode'] = $cart->getdeszipcode();
 		}
 
@@ -121,6 +121,7 @@ use \EDS\Model\OrderStatus;
 		}
 
 		if (!$address->getdesaddress()) $address->setdesaddress('');
+		if (!$address->getdesnumber()) $address->setdesnumber ('');
 		if (!$address->getdescomplement()) $address->setdescomplement('');
 		if (!$address->getdesdistrict()) $address->setdesdistrict('');
 		if (!$address->getdescity()) $address->setdescity('');
@@ -129,7 +130,8 @@ use \EDS\Model\OrderStatus;
 		if (!$address->getdeszipcode()) $address->setdeszipcode('');
 
 		$page = new Page();
-		$page->setTpl("checkout", [
+
+		$page->setTpl("/checkout", [
 			'cart'     =>$cart->getValues(),
 			'address'  =>$address->getValues(),
 			'products' =>$cart->getProducts(),
@@ -159,7 +161,7 @@ use \EDS\Model\OrderStatus;
 		}
 
 		if (!isset($_POST['descity']) || $_POST['descity'] === '') {
-			Address::setMsgError("Informe a cidade/localidade.");
+			Address::setMsgError("Informe a cidade.");
 			header('Location: /checkout');
 			exit;
 		}
@@ -183,7 +185,7 @@ use \EDS\Model\OrderStatus;
 		$address->setData($_POST);
 		$address->save();
 		$cart = Cart::getFromSession();
-		$cart = getCalculateTotal();
+		$cart->getCalculateTotal();
 		$order = new Order();
 		$order->setData([
 			'idcart'=>$cart->getidcart(),
@@ -195,7 +197,7 @@ use \EDS\Model\OrderStatus;
 
 		$order->save();
 
-		header("Location: /order/".$order->getidorder());
+		header("Location: /order/" . $order->getidorder());
 		exit;
 	});
 
@@ -365,14 +367,14 @@ use \EDS\Model\OrderStatus;
 		$order = new Order();
 		$order->get((int)$idorder);
 		$page = new Page();
-		$page->stTpl("payment", [
+		$page->setTpl("payment", [
 			'order'=>$order->getValues()
 		]);
 	});
 
 	$app->get("/boleto/:idorder", function($idorder) {
 
-		User::verifyLogin();
+		User::verifyLogin(false);
 		$order = new Order();
 		$order->get((int)$idorder);
 
@@ -394,7 +396,7 @@ use \EDS\Model\OrderStatus;
 
 		// DADOS DO SEU CLIENTE
 		$dadosboleto["sacado"] = $order->getdesperson();
-		$dadosboleto["endereco1"] = $order->getdesaddress() . " " . $order->getdesdistrict();
+		$dadosboleto["endereco1"] = $order->getdesaddress() . " - " . $order->getdesnumber() . " " . $order->getdesdistrict();
 		$dadosboleto["endereco2"] = $order->getdescity() . " - " .$order->getdesstate() . " - " . $order->getdescountry() . " - CEP: " . $order->getdeszipcode();
 
 		// INFORMACOES PARA O CLIENTE
