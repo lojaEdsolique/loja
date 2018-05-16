@@ -121,17 +121,17 @@ use \EDS\Model\OrderStatus;
 		}
 
 		if (!$address->getdesaddress()) $address->setdesaddress('');
-		if (!$address->getdesnumber()) $address->setdesnumber ('');
 		if (!$address->getdescomplement()) $address->setdescomplement('');
 		if (!$address->getdesdistrict()) $address->setdesdistrict('');
 		if (!$address->getdescity()) $address->setdescity('');
 		if (!$address->getdesstate()) $address->setdesstate('');
 		if (!$address->getdescountry()) $address->setdescountry('');
 		if (!$address->getdeszipcode()) $address->setdeszipcode('');
+		if (!$address->getdesnumber()) $address->setdesnumber('');
 
 		$page = new Page();
 
-		$page->setTpl("/checkout", [
+		$page->setTpl("checkout", [
 			'cart'     =>$cart->getValues(),
 			'address'  =>$address->getValues(),
 			'products' =>$cart->getProducts(),
