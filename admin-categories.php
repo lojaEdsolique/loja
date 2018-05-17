@@ -25,6 +25,7 @@ $app->get("/admin/categories", function(){
 			'text'=>$x+1
 		]);
 	}
+
 	$page = new PageAdmin();
 	$page->setTpl("categories", [
 		"categories"=>$pagination['data'],
@@ -32,6 +33,7 @@ $app->get("/admin/categories", function(){
 		"pages"=>$pages
 	]);	
 });
+
 $app->get("/admin/categories/create", function(){
 	User::verifyLogin();
 	$page = new PageAdmin();

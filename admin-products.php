@@ -24,7 +24,7 @@ use \EDS\Model\Product;
 			'text'=>$x+1
 		]);
 	}
-	$products = Product::listAll();
+
 	$page = new PageAdmin();
 	$page->setTpl("products", [
 		"products"=>$pagination['data'],
