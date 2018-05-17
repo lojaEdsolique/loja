@@ -17,7 +17,7 @@ use \EDS\Model\Product;
 	for ($x = 0; $x < $pagination['pages']; $x++)
 	{
 		array_push($pages, [
-			'href'=>'/admin/products?'.http_build_query([
+				'href'=>'/admin/products?'.http_build_query([
 				'page'=>$x+1,
 				'search'=>$search
 			]),
